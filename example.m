@@ -17,7 +17,7 @@ label = wine(:,1);
 % An unlabeled item is represented by 0.
 slabel = slabelgenwl(label,0.1,0.4);
 disp('Parameters k: 10, distance: Normalized Euclidean, others: Default.');
-disp('Running the algorithm...');
+disp('Running the algorithm on the Wine Dat Set with 10% labeled examples, from which 40% have a wrong label (label noise)...');
 tStart = tic;
 owner = lnpcc(X, slabel, 10, 'seuclidean');
 tElapsed = toc(tStart);
