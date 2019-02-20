@@ -15,9 +15,9 @@ label = wine(:,1);
 % Randomly selecting 10% of the labels to be presented to the algorithm.
 % 40% of the labeled examples will have their label changed (label noise)
 % An unlabeled item is represented by 0.
-slabel = slabelgenwl(label,0.1,0.4);
+slabel = slabelgenwl(label,0.1,0.3);
 disp('Parameters k: 10, distance: Normalized Euclidean, others: Default.');
-disp('Running the algorithm on the Wine Dat Set with 10% labeled examples, from which 40% have a wrong label (label noise)...');
+disp('Running the algorithm on the Wine Dat Set with 10% labeled examples, from which 30% have a wrong label (label noise)...');
 tStart = tic;
 owner = lnpcc(X, slabel, 10, 'seuclidean');
 tElapsed = toc(tStart);
