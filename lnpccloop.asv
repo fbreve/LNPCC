@@ -10,9 +10,7 @@
  * This file is based on pccloop.c from the original PCC.
  * The only difference is that this one changes domination levels
  * (aka potencials) even if the node is initially labeled.
- * May be merged in pccloop.c in the future, with an extra boolean option
- * to choose between the two versions.
- *
+ * Mayb
  *=================================================================*/
 #include <math.h>
 #include "mex.h"

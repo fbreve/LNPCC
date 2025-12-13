@@ -1,0 +1,8 @@
+Date Format: DD/MM/YY
+
+05/12/2025 ~ 13/12/2025:
+- Updates to match optimizations applied to the original PCC method.
+-- New, less cluttered syntax for options.
+-- Faster graph construction using MATLAB’s knnsearch().
+-- Option to include seeds for reproducible results.
+-- Earlier stopping when k > 10 (k is now considered in the stability check equation).

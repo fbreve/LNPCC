@@ -18,8 +18,9 @@ label = wine(:,1);
 slabel = slabelgenwl(label,0.1,0.3);
 disp('Parameters k: 10, distance: Normalized Euclidean, others: Default.');
 disp('Running the algorithm on the Wine Dat Set with 10% labeled examples, from which 30% have wrong labels (label noise)...');
+
 tStart = tic;
-owner = lnpcc(X, slabel, 10, 'seuclidean');
+owner = lnpcc(X, slabel, k=10, disttype='seuclidean');
 tElapsed = toc(tStart);
 % Evaluating the classification accuracy.
 acc = stmwevalk(label,slabel,owner);

@@ -3,9 +3,9 @@
 % by Fabricio Breve - 24/01/2019
 %
 % If you use this algorithm, please cite:
-% BREVE, Fabricio Aparecido; ZHAO, Liang; QUILES, Marcos GonÁalves. 
+% BREVE, Fabricio Aparecido; ZHAO, Liang; QUILES, Marcos Gon√ßalves. 
 % Particle Competition and Cooperation for Semi-Supervised Learning with
-% Label Noise. Neurocomputing (Amsterdam), v.160, p.63 ñ 72, 2015.
+% Label Noise. Neurocomputing (Amsterdam), v.160, p.63 ‚Äì 72, 2015.
 %
 % Usage: [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
 % INPUT:
@@ -44,7 +44,8 @@
 %             matrix.
 % legacy_knn- Default: false. When set to 'true',it uses the original form
 %             of finding the k-nearest neighbors, which is slower in large
-%             datasets. 
+%             datasets. The new default function is faster, but it was not 
+%             intensively tested yet.
 %
 % OUTPUT:
 % owner     - vector of classes assigned to each data item
@@ -55,7 +56,7 @@
 % distnode  - matrix with the distance vectors of each particle, each
 %             column is a particle and each line is a node
 %
-% [1] BREVE, Fabricio Aparecido; Zhao, Liang; QUILES, Marcos GonÁalves;
+% [1] BREVE, Fabricio Aparecido; Zhao, Liang; QUILES, Marcos Gon√ßalves;
 % PEDRYCZ, Witold; LIU, Jiming, "Particle Competition and Cooperation in
 % Networks for Semi-Supervised Learning," Knowledge and Data Engineering,
 % IEEE Transactions on , vol.24, no.9, pp.1686,1698, Sept. 2012.
@@ -65,9 +66,9 @@
 % "Fuzzy community structure detection by particle competition and cooperation."
 % Soft Computing (Berlin. Print). , v.17, p.659 - 673, 2013.
 %
-% [3] BREVE, Fabricio Aparecido; ZHAO, Liang; QUILES, Marcos GonÁalves. 
+% [3] BREVE, Fabricio Aparecido; ZHAO, Liang; QUILES, Marcos Gon√ßalves. 
 % Particle Competition and Cooperation for Semi-Supervised Learning with
-% Label Noise. Neurocomputing (Amsterdam), v.160, p.63 ñ 72, 2015.
+% Label Noise. Neurocomputing (Amsterdam), v.160, p.63 ‚Äì 72, 2015.
 
 
 function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
@@ -97,10 +98,10 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
     slabel = uint16(slabel);
     k = uint16(options.k);   
     % constantes
-    potmax = 1.000; % potencial m·ximo
-    potmin = 0.000; % potencial mÌnimo
-    npart = sum(slabel~=0); % quantidade de partÌculas
-    %stopmax = round((qtnode/npart)*round(options.valpha*0.01)); % qtde de iteraÁıes para verificar convergÍncia
+    potmax = 1.000; % potencial m√°ximo
+    potmin = 0.000; % potencial m√≠nimo
+    npart = sum(slabel~=0); % quantidade de part√≠culas
+    %stopmax = round((qtnode/npart)*round(options.valpha*0.01)); % qtde de itera√ß√µes para verificar converg√™ncia
     stopmax = round((qtnode/double(npart*k))*round(options.valpha*0.1));
 
     if(~options.legacy_knn)
@@ -109,31 +110,31 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         [nsize, nlist] = legacy_build_knn_with_labels(X, slabel, k, options.disttype);
     end
 
-    % definindo classe de cada partÌcula
+    % definindo classe de cada part√≠cula
     partclass = slabel(slabel~=0);
-    % definindo nÛ casa da partÌcula
+    % definindo n√≥ casa da part√≠cula
     partnode = uint32(find(slabel));
 
 
     % definindo grau de propriedade
-    potacc = zeros(qtnode,options.nclass);  % n„o podemos usar 0, porque nÛs n„o visitados dariam divis„o por 0
+    potacc = zeros(qtnode,options.nclass);  % n√£o podemos usar 0, porque n√≥s n√£o visitados dariam divis√£o por 0
     % inicializando tabela de potenciais com tudo igual
     potini = repmat(potmax/double(options.nclass),qtnode,options.nclass);
-    % zerando potenciais dos nÛs rotulados
+    % zerando potenciais dos n√≥s rotulados
     potini(partnode,:) = 0;
-    % ajustando potencial da classe respectiva do nÛ rotulado para 1      
+    % ajustando potencial da classe respectiva do n√≥ rotulado para 1      
     potini(sub2ind(size(potini),partnode,slabel(partnode))) = 1;      
     for ri=1:10
-        % ajustando potenciais para configuraÁ„o inicial
+        % ajustando potenciais para configura√ß√£o inicial
         pot = potini;
-        % definindo potencial da partÌcula em 1
+        % definindo potencial da part√≠cula em 1
         potpart = ones(potmax,npart);    
-        % ajustando todas as dist‚ncias na m·xima possÌvel
+        % ajustando todas as dist√¢ncias na m√°xima poss√≠vel
         distnode = repmat(min(intmax('uint8'),uint8(qtnode-1)),qtnode,npart);        
-        % ajustando para zero a dist‚ncia de cada partÌcula para seu
-        % respectivo nÛ casa
+        % ajustando para zero a dist√¢ncia de cada part√≠cula para seu
+        % respectivo n√≥ casa
         distnode(sub2ind(size(distnode),partnode',1:npart)) = 0;
-        % colocando cada nÛ em sua casa
+        % colocando cada n√≥ em sua casa
         partpos = partnode;
         % initializing the accumlated dominance vectors
         % we can't use 0, otherwise non-visited nodes would trigger a division
@@ -155,7 +156,7 @@ end
 
 
 function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
-%
+
 % Generated with Perplexity, based on the current (2025) implementation of 
 % finding k-nearest neighbors I wrote for the original PCC.
 % It does not exactly match the neighbors list produced by the legacy
@@ -163,15 +164,18 @@ function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
 %
 % In larger datasets, this method is much faster than calculating all
 % the distances like the original version did.
+%
+% Non-exhaustive experiments with the Wine dataset showed that this 
+% strategy achieves slightly higher accuracies. 
 % 
-% ConstrÛi listas de vizinhos com:
-% - Prioridade forte para vizinhos de mesmo rÛtulo (se houver >= k)
-% - Reciprocidade: se j È vizinho de i, ent„o i entra como vizinho de j.
+% Constr√≥i listas de vizinhos com:
+% - Prioridade forte para vizinhos de mesmo r√≥tulo (se houver >= k)
+% - Reciprocidade: se j √© vizinho de i, ent√£o i entra como vizinho de j.
 %
 % X      : qtnode x d
-% slabel: qtnode x 1, 0 = n„o rotulado, >0 = rÛtulo
-% k      : n˙mero alvo de vizinhos
-% disttype: tipo de dist‚ncia aceito por knnsearch
+% slabel: qtnode x 1, 0 = n√£o rotulado, >0 = r√≥tulo
+% k      : n√∫mero alvo de vizinhos
+% disttype: tipo de dist√¢ncia aceito por knnsearch
 
     qtnode = size(X,1);
     k      = double(k);
@@ -183,32 +187,32 @@ function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
     nsize = uint16(zeros(qtnode,1));
     nlist = zeros(qtnode, k, 'uint32');
 
-    % 1a) nÛs n„o rotulados: k vizinhos mais prÛximos em todo X
+    % 1a) n√≥s n√£o rotulados: k vizinhos mais pr√≥ximos em todo X
     idx_unl = find(slabel == 0);
     if ~isempty(idx_unl)
         K_all = knnsearch(X, X(idx_unl,:), ...
                           'K', k+1, ...
                           'Distance', disttype);
-        % remove self (assumindo que sai na 1™ coluna)
+        % remove self (assumindo que sai na 1¬™ coluna)
         K_all = K_all(:,2:k+1);
         nsize(idx_unl) = uint16(k);
         nlist(idx_unl,:) = uint32(K_all);
     end
 
-    % 1b) nÛs rotulados: priorizar vizinhos do mesmo rÛtulo
+    % 1b) n√≥s rotulados: priorizar vizinhos do mesmo r√≥tulo
     labels = unique(slabel(slabel>0))';
     for c = labels
         idx_c = find(slabel == c);
         if isempty(idx_c), continue; end
 
         same_mask  = (slabel == c);
-        same_inds  = find(same_mask);      % nÛs com mesmo rÛtulo
-        other_inds = find(~same_mask);     % demais nÛs
+        same_inds  = find(same_mask);      % n√≥s com mesmo r√≥tulo
+        other_inds = find(~same_mask);     % demais n√≥s
 
         X_same  = X(same_inds,:);
         X_other = X(other_inds,:);
 
-        % kNN sÛ dentro do mesmo rÛtulo (todas queries de uma vez)
+        % kNN s√≥ dentro do mesmo r√≥tulo (todas queries de uma vez)
         k_same_max = min(k+1, size(X_same,1));
         Idx_same_local = knnsearch(X_same, X(idx_c,:), ...
                                    'K', k_same_max, ...
@@ -252,7 +256,7 @@ function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
     % 2) Garantir reciprocidade
     % ---------------------------
 
-    % reserva espaÁo extra para conexıes recÌprocas
+    % reserva espa√ßo extra para conex√µes rec√≠procas
     nlist(:,end+1:end+k) = uint32(0);
     nsize_full = double(nsize);   % trabalhar em double para indexar
 
@@ -264,7 +268,7 @@ function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
             j = neigh_i(v);
             if j == 0, continue; end
             pos = nsize_full(j) + 1;
-            % aumenta largura se necess·rio
+            % aumenta largura se necess√°rio
             if pos > size(nlist,2)
                 nlist(:,end+1:end+k) = uint32(0);
             end
@@ -288,26 +292,20 @@ function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
         maxdeg = max(maxdeg, numel(row));
     end
 
-    % cortar colunas n„o usadas
+    % cortar colunas n√£o usadas
     nlist = nlist(:,1:maxdeg);
 
 end
 
 function [nsize, nlist] = legacy_build_knn_with_labels(X, slabel, k, disttype)
-%
 % The original way of finding the k-nearest neighbors, as I wrote for [3]
-%
-% It is slower than the current version, but I kept it here just in case,
-% since the neighbors lists produced by the newer method are not exactly
-% the same, probably due to how knnsearch() handles ties differently from
-% my implementation.
 %
     qtnode = size(X,1);
     W = squareform(pdist(X,disttype).^2);  % gerando matriz de afinidade   
-    % aumentando dist‚ncias para todos os elementos, exceto entre os
-    % rotulados de mesmo rÛtulo
+    % aumentando dist√¢ncias para todos os elementos, exceto entre os
+    % rotulados de mesmo r√≥tulo
     W = W + (~((repmat(slabel,[1,size(slabel)]) == repmat(slabel,[1,size(slabel)])') & (repmat(slabel,[1,size(slabel)])~=0)))*max(max(W));
-    % eliminando a dist‚ncia para o prÛprio elemento
+    % eliminando a dist√¢ncia para o pr√≥prio elemento
     W = W + eye(qtnode)*realmax;       
     % construindo grafo
     graph = zeros(qtnode,'double');    
@@ -322,7 +320,7 @@ function [nsize, nlist] = legacy_build_knn_with_labels(X, slabel, k, disttype)
         %    W(j,ind(j))=+Inf;
         %end
     end
-    % ˙ltimos vizinhos do grafo (n„o precisa atualizar W pq n„o ser· mais
+    % √∫ltimos vizinhos do grafo (n√£o precisa atualizar W pq n√£o ser√° mais
     % usado)
     [~,ind] = min(W,[],2);
     clear W;
@@ -334,7 +332,7 @@ function [nsize, nlist] = legacy_build_knn_with_labels(X, slabel, k, disttype)
     %end
     clear ind;
 
-    % criando cÈlula para listas de vizinhos
+    % criando c√©lula para listas de vizinhos
     nsize = uint16(sum(graph));
     nlist = zeros(qtnode,max(nsize),'uint32');
     for i=1:qtnode       
