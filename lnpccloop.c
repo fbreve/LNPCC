@@ -104,7 +104,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     double maxmmpot = 0;
     int stopcnt = 0;
-    double *prob = malloc(sizeof(double)*neibmax); // vetor de probabilidades de visitar vizinho
+    
+    /* aloca vetor de probabilidades */
+    double *prob = (double *) malloc(sizeof(double) * neibmax);
+    if (prob == NULL) {
+        mexErrMsgTxt("Failed to allocate memory for probability vector 'prob'.");
+    }
+
     for(int i=0; i<maxiter; i++)
     {
         for(int j=0; j<npart; j++)

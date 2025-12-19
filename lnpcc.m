@@ -127,7 +127,7 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         % ajustando potenciais para configuração inicial
         pot = potini;
         % definindo potencial da partícula em 1
-        potpart = ones(potmax,npart);    
+        potpart = ones(1,npart);    
         % ajustando todas as distâncias na máxima possível
         distnode = repmat(min(intmax('uint8'),uint8(qtnode-1)),qtnode,npart);        
         % ajustando para zero a distância de cada partícula para seu
