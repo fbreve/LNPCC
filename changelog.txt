@@ -1,5 +1,10 @@
 Date Format: DD/MM/YY
 
+16/01/2026
+- owndeg initialization moved out of the executions loop, so the final
+owndeg is now accumulated through all the executions, not only the last
+one.
+
 05/12/2025 ~ 13/12/2025:
 - Updates to match optimizations applied to the original PCC method.
 -- New, less cluttered syntax for options.

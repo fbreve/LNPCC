@@ -122,7 +122,13 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
     % zerando potenciais dos nós rotulados
     potini(partnode,:) = 0;
     % ajustando potencial da classe respectiva do nó rotulado para 1      
-    potini(sub2ind(size(potini),partnode,slabel(partnode))) = 1;      
+    potini(sub2ind(size(potini),partnode,slabel(partnode))) = 1;
+
+    % initializing the accumulated dominance vectors
+    % we can't use 0, otherwise non-visited nodes would trigger a division
+    % by zero.
+    owndeg = repmat(realmin,qtnode,options.nclass);  
+
     for ri=1:10
         % ajustando potenciais para configuração inicial
         pot = potini;
@@ -135,10 +141,6 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         distnode(sub2ind(size(distnode),partnode',1:npart)) = 0;
         % colocando cada nó em sua casa
         partpos = partnode;
-        % initializing the accumlated dominance vectors
-        % we can't use 0, otherwise non-visited nodes would trigger a division
-        % by zero.
-        owndeg = repmat(realmin,qtnode,options.nclass);  
 
         lnpccloop(options.maxiter, npart, options.nclass, options.earlystop, ...
             stopmax, options.pgrd, options.dexp, options.deltav, ...
