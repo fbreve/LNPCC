@@ -7,17 +7,17 @@
 %
 % Loading the Wine Data Set
 load wine.data
-% Getting the dataset attributes (all colums, except the first one).
+% Getting the dataset attributes (all columns except the first).
 X = wine(:,2:end);
 % Getting dataset labels (first column). Labels should be >0 and in
 % sequence. Ex.: 1, 2, 3.
 label = wine(:,1);
-% Randomly selecting 10% of the labels to be presented to the algorithm.
-% 40% of the labeled examples will have their label changed (label noise)
+% Randomly selecting approximately 10% of the samples to be labeled.
+% 30% of the labeled examples will have their label changed (label noise)
 % An unlabeled item is represented by 0.
 slabel = slabelgenwl(label,0.1,0.3);
 disp('Parameters k: 10, distance: Normalized Euclidean, others: Default.');
-disp('Running the algorithm on the Wine Dat Set with 10% labeled examples, from which 30% have wrong labels (label noise)...');
+disp('Running the algorithm on the Wine dataset with 10% labeled samples, of which 30% have incorrect labels (label noise)...');
 
 tStart = tic;
 owner = lnpcc(X, slabel, k=10, disttype='seuclidean');
