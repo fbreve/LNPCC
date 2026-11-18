@@ -15,17 +15,34 @@ end
 function testGraphFormatsAndSymmetry(testCase)
     X = testCase.TestData.X;
     slabel = testCase.TestData.slabel;
-    optimized = lnpcc_buildgraph(X, slabel, k=10, disttype="seuclidean");
+    globalDefault = lnpcc_buildgraph(X, slabel, k=10, disttype="seuclidean");
+    optimized2025 = lnpcc_buildgraph(X, slabel, k=10, ...
+        disttype="seuclidean", scale_scope="subset");
     globalScale = lnpcc_buildgraph(X, slabel, k=10, ...
         disttype="seuclidean", scale_scope="global");
     legacy = lnpcc_buildgraph(X, slabel, k=10, ...
         disttype="seuclidean", legacy_knn=true);
-    assertGraph(testCase, optimized, slabel);
+    assertGraph(testCase, globalDefault, slabel);
+    assertGraph(testCase, optimized2025, slabel);
     assertGraph(testCase, globalScale, slabel);
     assertGraph(testCase, legacy, slabel);
-    testCase.verifyEqual(optimized.scale_scope, "subset");
+    testCase.verifyEqual(globalDefault.scale_scope, "global");
+    testCase.verifyEqual(optimized2025.scale_scope, "subset");
     testCase.verifyEqual(globalScale.scale_scope, "global");
+    testCase.verifyEqual(globalDefault.nsize, globalScale.nsize);
+    testCase.verifyEqual(globalDefault.nlist, globalScale.nlist);
     testCase.verifyEqual(legacy.legacy_knn, true);
+end
+
+function testGlobalScaleVsLegacyMatchesWine(testCase)
+    % Fixed Wine fixture: continuous distances, equal full-sample scales.
+    X = testCase.TestData.X;
+    slabel = testCase.TestData.slabel;
+    G = lnpcc_buildgraph(X, slabel, k=10, ...
+        disttype="seuclidean", scale_scope="global");
+    L = lnpcc_buildgraph(X, slabel, k=10, ...
+        disttype="seuclidean", legacy_knn=true);
+    testCase.verifyEqual(graphAdjacency(G), graphAdjacency(L));
 end
 
 function testDeterministicGraphConstruction(testCase)
