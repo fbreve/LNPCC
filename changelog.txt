@@ -1,6 +1,22 @@
 Date Format: DD/MM/YYYY
 
-18/11/2026:
+18/11/2026 (experimental scientific branch; MATLAB validation pending):
+- lnpcc_buildgraph.m exposes both original graph builders without changing
+  their internal search algorithms; graphs include their source labels.
+- Xgraph=true now uses an explicitly supplied graph, rejecting label
+  mismatches and structurally invalid adjacency lists.
+- For useseed=true, C srand(seed) runs only once by default, allowing the
+  random stream to advance across ten executions. reseed_each_run=true
+  restores the former per-execution reset.
+- Corrected the post-2025 optimized seuclidean graph construction:
+  scale_scope="global" is now the default and matches the original full-
+  dataset scaling; scale_scope="subset" restores the December 2025 behavior.
+- Archived the earliest full Git release (January 2019) in
+  archive/2019-initial-release, without claiming it matches the 2015 code.
+- New graph comparison utility and MATLAB regression tests. No MATLAB/MEX
+  scientific validation has been claimed.
+
+18/11/2026 (documentation maintenance):
 - Documentation and repository maintenance: expanded README, BibTeX,
   Apache 2.0 LICENSE, .gitignore, and corrected source-code comments.
 - No changes to scientific behavior, MEX binaries, or data.

@@ -1,0 +1,40 @@
+name: LNPCC MATLAB scientific regression
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+# One MATLAB installation per revision, rather than duplicate push/PR runs.
+concurrency:
+  group: matlab-lnpcc-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  matlab-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout scientific sources
+        uses: actions/checkout@v4
+
+      - name: Set up MATLAB and Statistics Toolbox
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: R2025b
+          products: Statistics_and_Machine_Learning_Toolbox
+
+      - name: Compile MEX, run tests and compare graph structures
+        uses: matlab-actions/run-command@v3
+        with:
+          command: |
+            mex('lnpccloop.c');
+            results = runtests('tests');
+            disp(results);
+            assertSuccess(results);
+            report = compare_lnpcc_graphs();
+            disp(report);

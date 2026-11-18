@@ -15,6 +15,9 @@
  *
  *=================================================================*/
 #include <math.h>
+#include <float.h>   /* DBL_MIN */
+#include <stdbool.h> /* bool */
+#include <stdlib.h>  /* rand, srand, malloc, free */
 #include "mex.h"
 /* Random choices are generated with C rand(); seeding uses srand(seed). */
 
