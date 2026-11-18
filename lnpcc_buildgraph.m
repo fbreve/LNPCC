@@ -14,7 +14,7 @@ function G = lnpcc_buildgraph(X, slabel, options)
         options.k uint16 = size(X,1)*0.05
         options.disttype string = 'euclidean'
         options.legacy_knn logical = false
-        options.scale_scope string = 'subset'
+        options.scale_scope string = 'global'
     end
 
     if ~isnumeric(X) || ~ismatrix(X) || isempty(X)
@@ -42,7 +42,7 @@ function G = lnpcc_buildgraph(X, slabel, options)
     % X_same and X_other independently. The legacy builder uses pdist(X),
     % which uses GLOBAL feature scales. For controlled comparisons,
     % scale_scope="global" normalizes X once and uses Euclidean kNN.
-    % The "subset" default preserves the optimized 2025 implementation.
+    % Use "subset" explicitly to restore the 2025 optimized behavior.
     Xsearch = X;
     search_disttype = options.disttype;
     if ~options.legacy_knn && options.scale_scope == "global" && ...
