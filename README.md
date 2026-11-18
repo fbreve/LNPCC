@@ -67,7 +67,7 @@ Here, each row of `X` is a sample; the `slabel` vector uses `0` for unlabeled sa
 | `nclass` | Number of classes (default: maximum provided label) |
 | `useseed`, `seed` | Control the C random-number generator used by the MEX routine |
 | `legacy_knn` | Use the original full-distance-matrix graph construction (default `false`) |
-| `scale_scope` | Optimized `seuclidean` construction: `"subset"` (historical default) or `"global"` |
+| `scale_scope` | Optimized `seuclidean` construction: `"global"` (corrected default) or `"subset"` (2025 compatibility) |
 | `reseed_each_run` | Restore legacy seeded behavior when `true`; default is to seed only the first run |
 
 ### Reusing a prebuilt graph
@@ -94,7 +94,7 @@ The current code requires the compiled MEX; there is no `mex=false` mode.
 
 The C/MEX routine uses `rand()` and `srand(seed)`. **With `useseed=true`, the current implementation seeds the C generator once before the first of ten executions and lets the same stream advance during subsequent executions.** Repeated calls with the same seed should therefore reproduce the full experiment without repeating the identical random stream ten times. For compatibility with the pre-correction behavior, set `reseed_each_run=true`, which resets the same seed at the beginning of each execution.
 
-The newer graph builder uses `knnsearch`, while `legacy_knn=true` uses the older full-distance method. For `disttype="seuclidean"`, the original optimized builder computes standard deviations **separately for label-based subsets**, unlike the legacy builder's global scaling. This can change the resulting neighbors even without distance ties. Set `scale_scope="global"` to standardize features once using the complete data matrix before the optimized search. The historical `"subset"` scaling remains the default. Neither variant is claimed to be scientifically equivalent to the published 2015 experiments without comparison.
+The newer graph builder uses `knnsearch`, while `legacy_knn=true` uses the older full-distance method. For `disttype="seuclidean"`, the December 2025 optimized builder computed standard deviations **separately for label-based subsets**, unlike the legacy builder's global scaling. This changed neighbors even without distance ties. The corrected **default** `scale_scope="global"` standardizes features once using the full dataset; choose `scale_scope="subset"` to reproduce the 2025 optimized behavior. Agreement of graph structure in one dataset does not prove equivalence to the published 2015 experiments.
 
 ## Files
 
@@ -127,6 +127,14 @@ report = compare_lnpcc_graphs();
 Tests involving the MEX routine are skipped if it is unavailable. The graph diagnostic reports differences in **edges**, not accuracy, and does not assume the constructions are equivalent.
 
 **Validation status:** These tests and MATLAB/MEX scientific executions must be run in a compatible MATLAB environment. This repository change does not claim a successful experimental validation yet.
+
+## Historical source snapshot
+
+- [`archive/2019-initial-release`](https://github.com/fbreve/LNPCC/tree/archive/2019-initial-release) points to commit [`48c1a8ac4ccc`](https://github.com/fbreve/LNPCC/commit/48c1a8ac4ccc4cebcb3fc8da368a770ccdf06352), the earliest complete source release in Git, dated **January 24, 2019**.
+- The journal paper is from **2015**. No matching 2015 source-code snapshot has been established from this repository. The 2019 branch must **not** be described as a proven copy of the experimental implementation used for the publication.
+- The archived branch is left unchanged. It contains its original MATLAB files, MEX binary, and Wine data. Current bug fixes and regression tests belong on `master` after scientific validation, not on the archival branch.
+
+To reproduce a specific subsequent result, use the corresponding commit in Git history together with its exact MEX build, MATLAB environment, noise labels, random seeds, and other experiment settings.
 
 ## Citation
 
