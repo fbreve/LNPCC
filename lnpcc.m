@@ -88,6 +88,9 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         options.scale_scope string = 'subset' % opt-in "global" for seuclidean
     end   
 
+    % The MEX interface expects a column vector of uint16 labels.
+    slabel = slabel(:);
+
     % A graph produced by lnpcc_buildgraph is tied to its input labels.
     if options.Xgraph
         G = X;
@@ -111,9 +114,11 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
     potmax = 1.000; % potencial máximo
     potmin = 0.000; % potencial mínimo
     npart = sum(slabel~=0);
-    if npart == 0 || options.nclass < 2
+    if npart == 0 || options.nclass < 2 || ...
+            options.nclass < max(slabel) || ...
+            numel(unique(slabel(slabel ~= 0))) < 2
         error('LNPCC:InvalidClasses', ...
-            'LNPCC requires labeled vertices from at least two classes.');
+            'LNPCC requires labels from at least two classes within nclass.');
     end
     %stopmax = round((qtnode/npart)*round(options.valpha*0.01)); % qtde de iterações para verificar convergência
     stopmax = round((qtnode/double(npart*k))*round(options.valpha*0.1));
