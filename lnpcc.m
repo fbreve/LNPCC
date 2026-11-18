@@ -32,15 +32,16 @@
 % maxiter   - Maximum amount of iterations. Default is 500,000.
 % Execution - Always uses the compiled lnpccloop MEX routine.
 %             There is no pure-MATLAB (mex=false) option in this version.
-% useseed   - When true, calls C srand(seed) in the MEX routine.
-%             Default: false. The seed is reset on each of the 10 runs.
+% useseed   - When true, initializes C srand(seed) before the first run.
+%             Default: false. Subsequent runs advance the same C stream.
+% reseed_each_run - Restore legacy repeated-seed behavior when true.
+%             Default: false. Use true to reproduce old seeded runs.
 % seed      - Seed for the C rand()/srand() generator (default: 0).
-%             Fixed seeds can repeat the same trajectory across runs.
-% Xgraph    - Reserved but currently unused. This version always
-%             constructs a graph from a feature matrix X.
-% legacy_knn- Default: false. When true, uses the original graph
-%             construction based on the full distance matrix. The newer
-%             knnsearch implementation may produce different neighbors.
+% Xgraph    - When true, X is a graph from lnpcc_buildgraph, tied to slabel.
+% legacy_knn- Default: false. When true, uses the original graph builder.
+% scale_scope - 'subset' (historic optimized default) or 'global' for
+%             consistent standardized-Euclidean scaling across subsets.
+%             These options are ignored when passing an existing graph.
 %
 % OUTPUT:
 % owner     - vector of classes assigned to each data item
