@@ -16,8 +16,7 @@
  *=================================================================*/
 #include <math.h>
 #include "mex.h"
-/* to avoid the warning on rand_s when compiling with MinGW */
-// extern errno_t rand_s (unsigned int *randomValue);
+/* Random choices are generated with C rand(); seeding uses srand(seed). */
 
 /* Input Arguments */
 
@@ -94,14 +93,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
     qtnode = (int) mxGetM(slabel_IN);
     neibmax = (int) mxGetN(nlist_IN);  // quantidade máxima de vizinhos que um nó tem
     
+    // This function is called once per LNPCC execution. A fixed seed
+    // restarts the C random stream on each call; algorithm behavior unchanged.
     if (useseed) srand(seed);
-    
-    // non-Windows users should probably use /dev/random or /dev/urandom instead of rand_s
-    // unsigned int seed;
-    // errno_t err;
-    // err = rand_s(&seed);
-    // if (err != 0) printf_s("The rand_s function failed!\n");
-    
+
     double maxmmpot = 0;
     int stopcnt = 0;
     
