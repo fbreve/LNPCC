@@ -1,9 +1,117 @@
-# Particle Competition and Cooperation for Semi-Supervised Learning with Label Noise
+# LNPCC — Particle Competition and Cooperation for Semi-Supervised Learning with Label Noise
 
-If you use this algorithm, please cite the original publication:
+MATLAB and C/MEX implementation of **Label-Noise Particle Competition and Cooperation (LNPCC)**, a graph-based semi-supervised learning approach designed to work with noisy input labels.
 
-BREVE, Fabricio Aparecido; ZHAO, Liang; QUILES, Marcos Gonçalves. Particle Competition and Cooperation for Semi-Supervised Learning with Label Noise. Neurocomputing (Amsterdam), v.160, p.63 – 72, 2015.
+This repository accompanies the article:
 
-https://dx.doi.org/10.1016/j.neucom.2014.08.082
+> Breve, Fabricio Aparecido; Zhao, Liang; and Quiles, Marcos Gonçalves. "Particle Competition and Cooperation for Semi-Supervised Learning with Label Noise." *Neurocomputing*, **160**, 63–72 (2015). https://doi.org/10.1016/j.neucom.2014.08.082
 
-Accepted Manuscript: https://www.fabriciobreve.com/artigos/2015/Neurocomputing2015.pdf
+- [Published article (DOI)](https://doi.org/10.1016/j.neucom.2014.08.082)
+- [arXiv preprint (posted in 2020)](https://arxiv.org/abs/2002.05198)
+- [Author-hosted accepted manuscript (PDF)](https://www.fabriciobreve.com/artigos/2015/Neurocomputing2015.pdf)
+
+## Overview
+
+LNPCC extends the [Particle Competition and Cooperation (PCC)](https://github.com/fbreve/Particle-Competition-and-Cooperation) framework to classification with potentially incorrect initial labels. Unlike the original PCC implementation, the propagation routine can update dominance values at initially labeled vertices, allowing the network to mitigate label noise.
+
+The current implementation constructs a graph that prioritizes connections between vertices with the same provided label, then performs **ten particle-propagation executions**. Its output class assignments are determined from the accumulated dominance values of those executions.
+
+**Historical note:** The algorithm was published in 2015. The code in the current `master` branch has changed since the initial release, particularly in December 2025 and January 2026. Do not assume this branch is an exact copy of the code or numerical behavior used for the published experiments.
+
+## Requirements
+
+- **MATLAB R2021a or newer** for the `name=value` function-call syntax in `example.m` (the `arguments` block in `lnpcc.m` was introduced earlier).
+- **Statistics and Machine Learning Toolbox**, used for nearest-neighbor search and other utilities (such as `knnsearch`, `pdist`, `squareform`, and `random`).
+- The `lnpccloop` **MEX** routine, which is mandatory in the current implementation. There is no `mex=false` pure-MATLAB execution path.
+
+A precompiled `lnpccloop.mexw64` is included for **64-bit Windows**. Other operating systems, or incompatible MATLAB installations, need to compile `lnpccloop.c` with a supported C compiler:
+
+```matlab
+mex -setup C
+mex lnpccloop.c
+```
+
+Compiling and running have not been validated here for every MATLAB version or operating system.
+
+## Quick start: Wine with label noise
+
+The repository includes `wine.data` and an example using the Wine dataset from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/109/wine).
+
+Open MATLAB, set the working directory to the repository root, ensure the MEX routine is available, and run:
+
+```matlab
+example
+```
+
+The example generates a partially labeled dataset with **10% labeled samples, of which 30% receive incorrect labels** (subject to rounding and the label-generator's constraints). It runs LNPCC with `k=10` and standardized Euclidean distance, and reports classification accuracy for the originally unlabeled examples and execution time.
+
+A direct call has the form:
+
+```matlab
+[owner, pot, owndeg, distnode] = lnpcc(X, uint16(slabel), ...
+    k=10, disttype="seuclidean");
+```
+
+Here, each row of `X` is a sample; the `slabel` vector uses `0` for unlabeled samples and consecutive positive class indices for labeled samples.
+
+## Main options
+
+| Option | Meaning |
+| --- | --- |
+| `k` | Nearest-neighbor count; default approximately 5% of the dataset size |
+| `disttype` | Distance metric used for graph construction (default `"euclidean"`) |
+| `earlystop` | Whether to use an early-stopping criterion (default `true`) |
+| `valpha` | Controls the early-stopping stability window (default `2000`) |
+| `maxiter` | Maximum iterations per execution (default `500000`) |
+| `pgrd`, `deltav`, `deltap`, `dexp` | Particle movement and dominance update parameters |
+| `nclass` | Number of classes (default: maximum provided label) |
+| `useseed`, `seed` | Control the C random-number generator used by the MEX routine |
+| `legacy_knn` | Use the older distance-matrix graph construction when `true` (default `false`) |
+
+The `Xgraph` option currently appears in the function signature but **is not implemented**: `lnpcc.m` constructs the graph from the feature matrix regardless of this setting. The current code also does not support switching MEX execution off.
+
+### Outputs and reproducibility caveats
+
+- `owner`: predicted classes, obtained from the **sum of the dominance matrices across ten executions**.
+- `pot`: the dominance matrix from the **last execution**, not the sum used to compute `owner`.
+- `owndeg`: normalized fuzzy ownership accumulated across the ten executions (following the January 2026 update).
+- `distnode`: particle distance matrix from the last execution.
+
+The C/MEX routine uses `rand()` and calls `srand(seed)` when `useseed=true`. As the MEX routine is called separately for each of the ten executions, a fixed seed is **reapplied to each run**. Thus, with unchanged initial conditions, the ten runs can repeat the same pseudorandom sequence rather than being independent realizations. This behavior is documented here but has **not** been changed.
+
+The newer default graph builder uses `knnsearch`, while `legacy_knn=true` uses the older full-distance construction. They can produce different neighbor lists (for example, when distances tie), so a direct numerical equivalence claim is not warranted without testing.
+
+## Files
+
+| File | Purpose |
+| --- | --- |
+| `lnpcc.m` | Main algorithm, graph construction, and aggregation of the ten executions |
+| `lnpccloop.c` | C source for particle propagation |
+| `lnpccloop.mexw64` | Precompiled MEX routine for 64-bit Windows |
+| `example.m` | Wine dataset demonstration with noisy labels |
+| `slabelgenwl.m` | Partially labeled data generator with injected label noise |
+| `stmwevalk.m`, `kappa.m`, `sumcol.m` | Evaluation and supporting utilities |
+| `wine.data`, `wine.names` | Third-party Wine example dataset and description |
+| `changelog.txt` | Notes on post-publication changes |
+
+The `.asv` files are historical MATLAB/editor backups retained for reference; they are not required to run the example.
+
+## Citation
+
+If you use LNPCC in research, please cite the original journal article:
+
+```bibtex
+@article{breve2015particle,
+  author  = {Breve, Fabricio Aparecido and Zhao, Liang and Quiles, Marcos Gon{\c{c}}alves},
+  title   = {Particle Competition and Cooperation for Semi-Supervised Learning with Label Noise},
+  journal = {Neurocomputing},
+  volume  = {160},
+  pages   = {63--72},
+  year    = {2015},
+  doi     = {10.1016/j.neucom.2014.08.082}
+}
+```
+
+## License and data
+
+The project source code is distributed under the [Apache License, Version 2.0](LICENSE). This does **not** automatically extend the software license to the third-party Wine dataset or any other externally sourced material. Their respective usage and attribution conditions remain applicable.
