@@ -126,13 +126,13 @@ report = compare_lnpcc_graphs();
 
 Tests involving the MEX routine are skipped if it is unavailable. The graph diagnostic reports differences in **edges**, not accuracy, and does not assume the constructions are equivalent.
 
-**Validation status:** These tests and MATLAB/MEX scientific executions must be run in a compatible MATLAB environment. This repository change does not claim a successful experimental validation yet.
+**Validation status (November 18, 2026):** The scientific regression workflow completed successfully using **MATLAB R2025b on Linux** with the Statistics and Machine Learning Toolbox. The C/MEX routine compiled successfully, and all **8 regression tests passed (0 failed, 0 incomplete)**. The Wine graph diagnostic found **8 differing undirected edges** between the 2025 subset-scaled and legacy builders, and **0 differing edges** between the corrected global-scaled and legacy builders for the tested fixture. See the [successful GitHub Actions run](https://github.com/fbreve/LNPCC/actions/runs/44355912060). This validates the tested graph/RNG contracts and comparison on Wine; it **does not establish full reproduction of the 2015 publication's experiments**, or coverage of every dataset, MATLAB release, or operating system.
 
 ## Historical source snapshot
 
 - [`archive/2019-initial-release`](https://github.com/fbreve/LNPCC/tree/archive/2019-initial-release) points to commit [`48c1a8ac4ccc`](https://github.com/fbreve/LNPCC/commit/48c1a8ac4ccc4cebcb3fc8da368a770ccdf06352), the earliest complete source release in Git, dated **January 24, 2019**.
 - The journal paper is from **2015**. No matching 2015 source-code snapshot has been established from this repository. The 2019 branch must **not** be described as a proven copy of the experimental implementation used for the publication.
-- The archived branch is left unchanged. It contains its original MATLAB files, MEX binary, and Wine data. Current bug fixes and regression tests belong on `master` after scientific validation, not on the archival branch.
+- The archived branch is left unchanged. It contains its original MATLAB files, MEX binary, and Wine data. The fixes and regression tests validated in MATLAB R2025b/Linux have been integrated into `master`, not the archival branch.
 
 To reproduce a specific subsequent result, use the corresponding commit in Git history together with its exact MEX build, MATLAB environment, noise labels, random seeds, and other experiment settings.
 
