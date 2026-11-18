@@ -66,9 +66,24 @@ Here, each row of `X` is a sample; the `slabel` vector uses `0` for unlabeled sa
 | `pgrd`, `deltav`, `deltap`, `dexp` | Particle movement and dominance update parameters |
 | `nclass` | Number of classes (default: maximum provided label) |
 | `useseed`, `seed` | Control the C random-number generator used by the MEX routine |
-| `legacy_knn` | Use the older distance-matrix graph construction when `true` (default `false`) |
+| `legacy_knn` | Use the original full-distance-matrix graph construction (default `false`) |
+| `scale_scope` | Optimized `seuclidean` construction: `"subset"` (historical default) or `"global"` |
+| `reseed_each_run` | Restore legacy seeded behavior when `true`; default is to seed only the first run |
 
-The `Xgraph` option currently appears in the function signature but **is not implemented**: `lnpcc.m` constructs the graph from the feature matrix regardless of this setting. The current code also does not support switching MEX execution off.
+### Reusing a prebuilt graph
+
+A graph can be built once and reused for repeated propagations with **the same feature data and the same noisy-label vector**:
+
+```matlab
+G = lnpcc_buildgraph(X, uint16(slabel), k=10, ...
+    disttype="seuclidean", scale_scope="global");
+owner = lnpcc(G, uint16(slabel), Xgraph=true, ...
+    useseed=true, seed=1234);
+```
+
+The graph retains the label vector used to construct it. LNPCC checks this against the supplied `slabel` and **rejects mismatches**, so a graph must be rebuilt when the labeled set or its noisy labels change. In this mode, `k` comes from the graph and the `legacy_knn` and `scale_scope` arguments used to build it must be set in `lnpcc_buildgraph`.
+
+The current code requires the compiled MEX; there is no `mex=false` mode.
 
 ### Outputs and reproducibility caveats
 
@@ -77,15 +92,18 @@ The `Xgraph` option currently appears in the function signature but **is not imp
 - `owndeg`: normalized fuzzy ownership accumulated across the ten executions (following the January 2026 update).
 - `distnode`: particle distance matrix from the last execution.
 
-The C/MEX routine uses `rand()` and calls `srand(seed)` when `useseed=true`. As the MEX routine is called separately for each of the ten executions, a fixed seed is **reapplied to each run**. Thus, with unchanged initial conditions, the ten runs can repeat the same pseudorandom sequence rather than being independent realizations. This behavior is documented here but has **not** been changed.
+The C/MEX routine uses `rand()` and `srand(seed)`. **With `useseed=true`, the current implementation seeds the C generator once before the first of ten executions and lets the same stream advance during subsequent executions.** Repeated calls with the same seed should therefore reproduce the full experiment without repeating the identical random stream ten times. For compatibility with the pre-correction behavior, set `reseed_each_run=true`, which resets the same seed at the beginning of each execution.
 
-The newer default graph builder uses `knnsearch`, while `legacy_knn=true` uses the older full-distance construction. They can produce different neighbor lists (for example, when distances tie), so a direct numerical equivalence claim is not warranted without testing.
+The newer graph builder uses `knnsearch`, while `legacy_knn=true` uses the older full-distance method. For `disttype="seuclidean"`, the original optimized builder computes standard deviations **separately for label-based subsets**, unlike the legacy builder's global scaling. This can change the resulting neighbors even without distance ties. Set `scale_scope="global"` to standardize features once using the complete data matrix before the optimized search. The historical `"subset"` scaling remains the default. Neither variant is claimed to be scientifically equivalent to the published 2015 experiments without comparison.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `lnpcc.m` | Main algorithm, graph construction, and aggregation of the ten executions |
+| `lnpcc.m` | Main algorithm, graph selection, and aggregation of the ten executions |
+| `lnpcc_buildgraph.m` | Reusable label-aware graph construction (optimized/legacy, with scaling options) |
+| `compare_lnpcc_graphs.m` | Diagnostic comparison of graph structures using Wine |
+| `tests/test_lnpcc_contracts.m` | Regression tests for graph contracts, seed behavior, and prebuilt graph parity |
 | `lnpccloop.c` | C source for particle propagation |
 | `lnpccloop.mexw64` | Precompiled MEX routine for 64-bit Windows |
 | `example.m` | Wine dataset demonstration with noisy labels |
@@ -95,6 +113,20 @@ The newer default graph builder uses `knnsearch`, while `legacy_knn=true` uses t
 | `changelog.txt` | Notes on post-publication changes |
 
 The `.asv` files are historical MATLAB/editor backups retained for reference; they are not required to run the example.
+
+### Validation
+
+From the repository root, after compiling `lnpccloop.c` for the current platform, run:
+
+```matlab
+results = runtests("tests");
+disp(results);
+report = compare_lnpcc_graphs();
+```
+
+Tests involving the MEX routine are skipped if it is unavailable. The graph diagnostic reports differences in **edges**, not accuracy, and does not assume the constructions are equivalent.
+
+**Validation status:** These tests and MATLAB/MEX scientific executions must be run in a compatible MATLAB environment. This repository change does not claim a successful experimental validation yet.
 
 ## Citation
 
