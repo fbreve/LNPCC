@@ -39,8 +39,8 @@
 % seed      - Seed for the C rand()/srand() generator (default: 0).
 % Xgraph    - When true, X is a graph from lnpcc_buildgraph, tied to slabel.
 % legacy_knn- Default: false. When true, uses the original graph builder.
-% scale_scope - 'subset' (historic optimized default) or 'global' for
-%             consistent standardized-Euclidean scaling across subsets.
+% scale_scope - 'global' (corrected default) or 'subset' for the
+%             historical 2025 optimized behavior of seuclidean distances.
 %             These options are ignored when passing an existing graph.
 %
 % OUTPUT:
@@ -85,7 +85,7 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         options.reseed_each_run logical = false % compatibility mode: repeat C RNG stream
         options.Xgraph logical = false % X is a feature matrix by default
         options.legacy_knn logical = false % legacy function to find k-nearest neighbors
-        options.scale_scope string = 'subset' % opt-in "global" for seuclidean
+        options.scale_scope string = 'global' % corrected default for seuclidean
     end   
 
     % The MEX interface expects a column vector of uint16 labels.
