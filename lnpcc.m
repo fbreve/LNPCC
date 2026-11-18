@@ -84,6 +84,7 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         options.reseed_each_run logical = false % compatibility mode: repeat C RNG stream
         options.Xgraph logical = false % X is a feature matrix by default
         options.legacy_knn logical = false % legacy function to find k-nearest neighbors
+        options.scale_scope string = 'subset' % opt-in "global" for seuclidean
     end   
 
     % A graph produced by lnpcc_buildgraph is tied to its input labels.
@@ -93,7 +94,8 @@ function [owner, pot, owndeg, distnode] = lnpcc(X, slabel, options)
         qtnode = size(G.nlist, 1);
     else
         G = lnpcc_buildgraph(X, slabel, k=options.k, ...
-            disttype=options.disttype, legacy_knn=options.legacy_knn);
+            disttype=options.disttype, legacy_knn=options.legacy_knn, ...
+            scale_scope=options.scale_scope);
         qtnode = size(X, 1);
     end
 
