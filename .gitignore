@@ -1,0 +1,20 @@
+# MATLAB editor backups and autosave files
+*.asv
+*.m~
+*~
+
+# Temporary files and editor/OS artifacts
+*.swp
+*.swo
+*.tmp
+*.bak
+~$*
+.DS_Store
+Thumbs.db
+
+# Generated MATLAB/Simulink build directories
+slprj/
+codegen/
+
+# The supplied Windows MEX binary and Wine dataset are intentionally tracked.
+# Ignore patterns do not remove files already present in Git history.
