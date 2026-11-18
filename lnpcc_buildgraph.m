@@ -14,6 +14,7 @@ function G = lnpcc_buildgraph(X, slabel, options)
         options.k uint16 = size(X,1)*0.05
         options.disttype string = 'euclidean'
         options.legacy_knn logical = false
+        options.scale_scope string = 'subset'
     end
 
     if ~isnumeric(X) || ~ismatrix(X) || isempty(X)
@@ -32,12 +33,35 @@ function G = lnpcc_buildgraph(X, slabel, options)
     slabel = slabel(:);
     k = uint16(options.k);
 
+    if ~ismember(options.scale_scope, ["subset", "global"])
+        error('LNPCC:InvalidScaleScope', ...
+            'scale_scope must be "subset" or "global".');
+    end
+
+    % The historical optimized builder computes seuclidean scales from
+    % X_same and X_other independently. The legacy builder uses pdist(X),
+    % which uses GLOBAL feature scales. For controlled comparisons,
+    % scale_scope="global" normalizes X once and uses Euclidean kNN.
+    % The "subset" default preserves the optimized 2025 implementation.
+    Xsearch = X;
+    search_disttype = options.disttype;
+    if ~options.legacy_knn && options.scale_scope == "global" && ...
+            options.disttype == "seuclidean"
+        scale = std(double(X), 0, 1);
+        if any(~isfinite(scale) | scale <= 0)
+            error('LNPCC:InvalidScale', ...
+                'Global standardized Euclidean needs positive finite feature scales.');
+        end
+        Xsearch = double(X) ./ scale;
+        search_disttype = 'euclidean';
+    end
+
     if options.legacy_knn
         [nsize, nlist] = legacy_build_knn_with_labels( ...
             X, slabel, k, options.disttype);
     else
         [nsize, nlist] = build_knn_with_labels( ...
-            X, slabel, k, options.disttype);
+            Xsearch, slabel, k, search_disttype);
     end
 
     G.nsize = nsize;
@@ -46,6 +70,7 @@ function G = lnpcc_buildgraph(X, slabel, options)
     G.slabel = slabel;
     G.disttype = options.disttype;
     G.legacy_knn = options.legacy_knn;
+    G.scale_scope = options.scale_scope;
 end
 
 function [nsize, nlist] = build_knn_with_labels(X, slabel, k, disttype)
