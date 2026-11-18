@@ -1,6 +1,11 @@
-Date Format: DD/MM/YY
+Date Format: DD/MM/YYYY
 
-16/01/2026
+18/11/2026:
+- Documentation and repository maintenance: expanded README, BibTeX,
+  Apache 2.0 LICENSE, .gitignore, and corrected source-code comments.
+- No changes to scientific behavior, MEX binaries, or data.
+
+16/01/2026:
 - owndeg initialization moved out of the executions loop, so the final
 owndeg is now accumulated through all the executions, not only the last
 one.
