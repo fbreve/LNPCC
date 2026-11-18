@@ -8,9 +8,11 @@ Date Format: DD/MM/YYYY
 - For useseed=true, C srand(seed) runs only once by default, allowing the
   random stream to advance across ten executions. reseed_each_run=true
   restores the former per-execution reset.
-- Optional scale_scope="global" uses standardized-Euclidean distances
-  based on the full feature matrix instead of the historical per-subset
-  scales in the optimized graph constructor. The default remains "subset".
+- Corrected the post-2025 optimized seuclidean graph construction:
+  scale_scope="global" is now the default and matches the original full-
+  dataset scaling; scale_scope="subset" restores the December 2025 behavior.
+- Archived the earliest full Git release (January 2019) in
+  archive/2019-initial-release, without claiming it matches the 2015 code.
 - New graph comparison utility and MATLAB regression tests. No MATLAB/MEX
   scientific validation has been claimed.
 
