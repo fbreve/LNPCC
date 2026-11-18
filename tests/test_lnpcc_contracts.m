@@ -149,8 +149,8 @@ function [X, slabel] = wineFixture(root)
     classes = uint16(wine(:,1));
     slabel = zeros(size(classes), 'uint16');
     for c = 1:3
-        inds = find(classes == c, 3, 'first');
-        slabel(inds(1:2)) = c;
+        inds = find(classes == c, 13, 'first');
+        slabel(inds(1:12)) = c;
     end
     % Intentionally include one incorrect label to exercise LNPCC graphs.
     inds = find(classes == 1, 3, 'first');
